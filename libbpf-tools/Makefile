@@ -67,6 +67,7 @@ APPS = \
 	lczero \
 	llcstat \
 	mdflush \
+	monitor_perf_adjust_freq \
 	mountsnoop \
 	numamove \
 	offcputime \

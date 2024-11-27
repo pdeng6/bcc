@@ -62,6 +62,7 @@ APPS = \
 	gethostlatency \
 	hardirqs \
 	javagc \
+	kfio \
 	klockstat \
 	ksnoop \
 	lczero \

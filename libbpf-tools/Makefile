@@ -64,6 +64,7 @@ APPS = \
 	javagc \
 	klockstat \
 	ksnoop \
+	lczero \
 	llcstat \
 	mdflush \
 	mountsnoop \

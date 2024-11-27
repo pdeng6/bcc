@@ -64,6 +64,7 @@ APPS = \
 	javagc \
 	kfio \
 	klockstat \
+	kschedule \
 	ksnoop \
 	lczero \
 	llcstat \

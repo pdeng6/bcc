@@ -51,74 +51,63 @@ int select_idle_cpu(struct pt_regs *ctx) {
 
 // Tried to print the sd_share->nr_idle_scan
 // But failed, rcu_reference is not supported in bpf context yet
-/*
-extern const struct sched_domain_shared* sd_llc_shared __ksym;
-SEC("kprobe/select_idle_cpu")
-int select_idle_cpu(struct pt_regs *ctx) {
-    int nr = 1;
-    int* target = (int*)&PT_REGS_PARM4(ctx);
+// extern const struct sched_domain_shared* sd_llc_shared __ksym;
+// SEC("kprobe/select_idle_cpu")
+// int select_idle_cpu(struct pt_regs *ctx) {
+//     int nr = 1;
+//     int* target = (int*)&PT_REGS_PARM4(ctx);
 
-    struct sched_domain_shared* sds = (struct sched_domain_shared*)rcu_dereference(bpf_per_cpu_ptr(&sd_llc_shared, *target));
-    nr = READ_ONCE(sds->nr_idle_scan);
-    // nr = sds->nr_idle_scan;
+//     struct sched_domain_shared* sds = (struct sched_domain_shared*)rcu_dereference(bpf_per_cpu_ptr(&sd_llc_shared, *target));
+//     nr = READ_ONCE(sds->nr_idle_scan);
 
-    if (nr == 1)
-        return -1;
+//     if (nr == 1)
+//         return -1;
 
-    u32 tid = (bpf_get_current_pid_tgid() <<32 ) >> 32;
-    u32 pid = bpf_get_current_pid_tgid() >> 32;
-    struct task_struct *current = (void *)bpf_get_current_task();
+//     u32 tid = (bpf_get_current_pid_tgid() <<32 ) >> 32;
+//     u32 pid = bpf_get_current_pid_tgid() >> 32;
+//     struct task_struct *current = (void *)bpf_get_current_task();
 
-    struct data_t data = {};
-    data.type = 1;
-    data.pid = pid;
-    data.tid = tid;
-    data.nr_idle_scan = nr;
+//     struct data_t data = {};
+//     data.type = 1;
+//     data.pid = pid;
+//     data.tid = tid;
+//     data.nr_idle_scan = nr;
 
-    BPF_CORE_READ_STR_INTO(&data.comm, current, group_leader, comm);
+//     BPF_CORE_READ_STR_INTO(&data.comm, current, group_leader, comm);
 
-    bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &data, sizeof(data));
-    return 0;
-}
-*/
+//     bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &data, sizeof(data));
+//     return 0;
+// }
 
 // Tried to print the sd_share->nr_idle_scan
 // We add a nr_store param in select_idle_cpu to store the value
 // so when return, we retrieve the value
 // Failed too, input param stack may be destroyed when retprobe is enter.
-/*
-SEC("kretprobe/select_idle_cpu")
-int select_idle_cpu(struct pt_regs *ctx) {
-    int* nr_store = (int*)PT_REGS_PARM5(ctx);
+// SEC("kretprobe/select_idle_cpu")
+// int select_idle_cpu(struct pt_regs *ctx) {
+//     int* nr_store = (int*)PT_REGS_PARM5(ctx);
 
-    struct task_struct *current = (void *)bpf_get_current_task();
+//     struct task_struct *current = (void *)bpf_get_current_task();
 
-    struct data_t data = {};
-    data.type = 1;
+//     struct data_t data = {};
+//     data.type = 1;
 
-    bpf_core_read(&data.nr_idle_scan, sizeof(data.nr_idle_scan), nr_store);
+//     bpf_core_read(&data.nr_idle_scan, sizeof(data.nr_idle_scan), nr_store);
 
-    BPF_CORE_READ_STR_INTO(&data.comm, current, group_leader, comm);
+//     BPF_CORE_READ_STR_INTO(&data.comm, current, group_leader, comm);
 
-    bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &data, sizeof(data));
-    return 0;
-}
-*/
+//     bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &data, sizeof(data));
+//     return 0;
+// }
 
 SEC("kprobe/select_idle_cpu_nr_observer")
 int select_idle_cpu_nr_observer(struct pt_regs *ctx) {
     int* nr_store = (int*)PT_REGS_PARM1(ctx);
 
-    // if (*nr_store > 0)
-    //     return -1;
-    // struct task_struct *current = (void *)bpf_get_current_task();
-
     struct data_t data = {};
     data.type = 1;
 
     bpf_core_read(&data.nr_idle_scan, sizeof(data.nr_idle_scan), nr_store);
-
-    // BPF_CORE_READ_STR_INTO(&data.comm, current, group_leader, comm);
 
     bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &data, sizeof(data));
     return 0;
@@ -128,16 +117,10 @@ SEC("kprobe/cnt_search_select_idle_core_observer")
 int cnt_search_select_idle_core_observer(struct pt_regs *ctx) {
     int* nr_store = (int*)PT_REGS_PARM1(ctx);
 
-    // if (*nr_store > 0)
-    //     return -1;
-    // struct task_struct *current = (void *)bpf_get_current_task();
-
     struct data_t data = {};
     data.type = 1;
 
     bpf_core_read(&data.nr_search_select_idle_core, sizeof(data.nr_search_select_idle_core), nr_store);
-
-    // BPF_CORE_READ_STR_INTO(&data.comm, current, group_leader, comm);
 
     bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &data, sizeof(data));
     return 0;
@@ -251,16 +234,10 @@ SEC("kprobe/cnt_search_select_idle_core_observer_early_leave.isra.0")
 int cnt_search_select_idle_core_observer_early_leave(struct pt_regs *ctx) {
     int* nr_store = (int*)PT_REGS_PARM1(ctx);
 
-    // if (*nr_store > 0)
-    //     return -1;
-    // struct task_struct *current = (void *)bpf_get_current_task();
-
     struct data_t data = {};
     data.type = 1;
 
     bpf_core_read(&data.nr_search_select_idle_core_early_leave, sizeof(data.nr_search_select_idle_core_early_leave), nr_store);
-
-    // BPF_CORE_READ_STR_INTO(&data.comm, current, group_leader, comm);
 
     bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &data, sizeof(data));
     return 0;
@@ -270,16 +247,10 @@ SEC("kprobe/cnt_search_select_idle_cpu_observer")
 int cnt_search_select_idle_cpu_observer(struct pt_regs *ctx) {
     int* nr_store = (int*)PT_REGS_PARM1(ctx);
 
-    // if (*nr_store > 0)
-    //     return -1;
-    // struct task_struct *current = (void *)bpf_get_current_task();
-
     struct data_t data = {};
     data.type = 1;
 
     bpf_core_read(&data.nr_search_select_idle_cpu, sizeof(data.nr_search_select_idle_cpu), nr_store);
-
-    // BPF_CORE_READ_STR_INTO(&data.comm, current, group_leader, comm);
 
     bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &data, sizeof(data));
     return 0;
@@ -288,8 +259,6 @@ int cnt_search_select_idle_cpu_observer(struct pt_regs *ctx) {
 SEC("kprobe/update_idle_cpu_scan.isra.0")
 int BPF_KPROBE(kpobe_update_idle_cpu_scan) {
     unsigned long* sum_util = (unsigned long*)&PT_REGS_PARM2(ctx);
-    // if (nr == 1)
-    //     return -1;
 
     u32 tid = (bpf_get_current_pid_tgid() <<32 ) >> 32;
     u32 pid = bpf_get_current_pid_tgid() >> 32;
@@ -316,8 +285,6 @@ SEC("kretprobe/update_idle_cpu_scan.isra.0")
 int BPF_KRETPROBE(kretpobe_update_idle_cpu_scan, int ret) {
     int nr_idle_scan = PT_REGS_RC(ctx);
     unsigned long* sum_util = (unsigned long*)&PT_REGS_PARM2(ctx);
-    // if (nr == 1)
-    //     return -1;
 
     u32 tid = (bpf_get_current_pid_tgid() <<32 ) >> 32;
     u32 pid = bpf_get_current_pid_tgid() >> 32;
@@ -364,10 +331,6 @@ int util_avg_observer1(struct pt_regs *ctx) {
     u64 se_util_avg = (unsigned long)PT_REGS_PARM3(ctx);
     u64 rq_util_avg_sub_result = (unsigned long)PT_REGS_PARM4(ctx);
 
-    // if (*nr_store > 0)
-    //     return -1;
-    // struct task_struct *current = (void *)bpf_get_current_task();
-
     struct data_t data = {};
     data.type = 5;
     data.rq_util_avg = rq_util_avg;
@@ -384,10 +347,6 @@ int util_avg_observer2(struct pt_regs *ctx) {
     u64 rq_util_avg = (unsigned long)PT_REGS_PARM2(ctx);
     u64 se_util_avg = (unsigned long)PT_REGS_PARM3(ctx);
     u64 rq_util_avg_add_result = (unsigned long)PT_REGS_PARM4(ctx);
-
-    // if (*nr_store > 0)
-    //     return -1;
-    // struct task_struct *current = (void *)bpf_get_current_task();
 
     struct data_t data = {};
     data.type = 5;

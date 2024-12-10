@@ -443,4 +443,105 @@ int count_pelt10(struct pt_regs *ctx) {
     return 0;
 }
 
+SEC("kprobe/lower_smt_observer.isra.0")
+int lower_smt_observer(struct pt_regs *ctx) {
+    int cpu = (int)PT_REGS_PARM2(ctx);
+    int smt = (int)PT_REGS_PARM3(ctx);
+
+
+    struct task_struct *current = (void *)bpf_get_current_task();
+
+    struct data_t data = {};
+    data.type = 9;
+    data.cur_cpu = cpu;
+    data.smt = smt;
+
+    BPF_CORE_READ_STR_INTO(&data.comm, current, group_leader, comm);
+
+    bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &data, sizeof(data));
+    return 0;
+}
+
+SEC("kprobe/set_running_cpu_observer.isra.0")
+int set_running_cpu_observer(struct pt_regs *ctx) {
+    int cpu = (int)PT_REGS_PARM2(ctx);
+    int index = (int)PT_REGS_PARM3(ctx);
+    int biti = (int)PT_REGS_PARM4(ctx);
+
+
+    struct task_struct *current = (void *)bpf_get_current_task();
+
+    struct data_t data = {};
+    data.type = 10;
+    data.cur_cpu = cpu;
+    data.index = index;
+    data.biti = biti;
+
+    BPF_CORE_READ_STR_INTO(&data.comm, current, group_leader, comm);
+
+    bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &data, sizeof(data));
+    return 0;
+}
+
+SEC("kprobe/set_running_core_observer.isra.0")
+int set_running_core_observer(struct pt_regs *ctx) {
+    int core = (int)PT_REGS_PARM2(ctx);
+    int index = (int)PT_REGS_PARM3(ctx);
+    int biti = (int)PT_REGS_PARM4(ctx);
+
+
+    struct task_struct *current = (void *)bpf_get_current_task();
+
+    struct data_t data = {};
+    data.type = 11;
+    data.cur_cpu = core;
+    data.index = index;
+    data.biti = biti;
+
+    BPF_CORE_READ_STR_INTO(&data.comm, current, group_leader, comm);
+
+    bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &data, sizeof(data));
+    return 0;
+}
+
+SEC("kprobe/clear_running_core_observer.isra.0")
+int clear_running_core_observer(struct pt_regs *ctx) {
+    int core = (int)PT_REGS_PARM2(ctx);
+    int index = (int)PT_REGS_PARM3(ctx);
+    int biti = (int)PT_REGS_PARM4(ctx);
+
+
+    struct task_struct *current = (void *)bpf_get_current_task();
+
+    struct data_t data = {};
+    data.type = 12;
+    data.cur_cpu = core;
+    data.index = index;
+    data.biti = biti;
+
+    BPF_CORE_READ_STR_INTO(&data.comm, current, group_leader, comm);
+
+    bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &data, sizeof(data));
+    return 0;
+}
+
+SEC("kprobe/scan_start_search_observer.isra.0")
+int scan_start_search_observer(struct pt_regs *ctx) {
+    int target = (int)PT_REGS_PARM2(ctx);
+    int start = (int)PT_REGS_PARM3(ctx);
+
+    struct task_struct *current = (void *)bpf_get_current_task();
+
+    struct data_t data = {};
+    data.type = 13;
+    data.cur_cpu = target;
+    data.smt = start;
+
+    BPF_CORE_READ_STR_INTO(&data.comm, current, group_leader, comm);
+
+    bpf_perf_event_output(ctx, &events, BPF_F_CURRENT_CPU, &data, sizeof(data));
+    return 0;
+}
+
+
 char LICENSE[] SEC("license") = "GPL";

@@ -37,6 +37,14 @@ void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
         printf("type:%-2d, delta: %-3llu\n", info->type, info->delta);
     }  else if (info->type == 8) {
         printf("type:%-2d, x1: %-3llu, llc_weight: %-3d, x2: %-3llu, pct: %-3d, boot_time: %-3llu, y3: %-3llu\n", info->type, info->x1, info->llc_weight, info->x2, info->pct, info->boot_time,info->y3);
+    }  else if (info->type == 9) {
+        printf("type:%-2d, cur_cpu: %-3d, smt: %-3d, %s\n", info->type, info->cur_cpu, info->smt, info->comm);
+    }  else if (info->type == 10) {
+        printf("type:%-2d, cpu: %-3d, index: %-3d, biti: %-3d, %s\n", info->type, info->cur_cpu, info->index, info->biti, info->comm);
+    }  else if (info->type == 11 || info->type == 12) {
+        printf("type:%-2d, core: %-3d, index: %-3d, biti: %-3d, %s\n", info->type, info->cur_cpu, info->index, info->biti, info->comm);
+    }  else if (info->type == 13) {
+        printf("type:%-2d, target: %-3d, start: %-3d, %s\n", info->type, info->cur_cpu, info->smt, info->comm);
     }
 }
 

@@ -47,6 +47,9 @@ struct data_t {
     __u64 deadline;
     __u64 nextt_vruntime;
     __u64 nextt_deadline;
+    __u32 smt;
+    __u32 index;
+    __u32 biti;
     char comm[CMD_LEN];
     char nextt_comm[CMD_LEN];
 };
